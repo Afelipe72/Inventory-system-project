@@ -1,0 +1,121 @@
+﻿@using Microsoft.AspNetCore.Identity;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Index";
+
+}
+
+
+@* filters *@
+<form asp-action="Index" method="get">
+    <div class="row">
+        
+        <label> Filters</label>
+        
+        @* dropdown filter *@
+        <div class="col">
+            <select asp-items="ViewBag.Suppliers" class="form-control col-md-6 " name="filter"></select>
+        </div>
+
+        @* input filter *@
+        <input type="text" class="form-control col-md-6" name="search" />
+
+        @* submit button *@
+        <div class="col text-end">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+</form>
+
+@if (User.IsInRole("Manager"))
+{
+    @* redirect to the csv *@
+    <a asp-action="Report"> Create report </a>
+}
+
+<form asp-action="Index" method="get">
+
+    @{
+        // null-coalescing operator
+        // if currentPage has a value , use it
+        // if not use 1
+        int currentPage = ViewBag.currentPage ?? 1;
+    }
+
+    <input type="hidden"/>
+    <button name="currentPage" value=@(currentPage-1) type="submit"> Previous </button>
+
+    <button name="currentPage" value=@(currentPage+1) type="submit">  Next </button>
+
+
+</form>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name </th>
+            <th>Description </th>
+            <th>Price </th>
+            <th>Category </th>
+            <th>Supplier </th>
+            <th>Quantity In Stock </th>
+            @if (User.IsInRole("Member"))
+            {
+                <th>Request Items</th>
+            }
+
+            @if (User.IsInRole("Manager"))
+            {
+                <th>Add stock</th>
+                <th>Edit stock</th>
+                <th>Delete stock</th>
+            }
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td> @item.Name </td>
+                <td> @item.Description </td>
+                <td> @item.Price </td>
+                <td> @item.Categories.Name </td>
+                <td> @item.Supplier.Name </td>
+
+                @if (item.QuantityInStock <= 5)
+                {
+                    <td class="text-danger"> @item.QuantityInStock - Low stock!  </td>
+                }
+                else
+                {
+                    <td> @item.QuantityInStock </td>
+                }
+
+
+                @if (User.IsInRole("Member"))
+                {
+                    <td> <a asp-action="RequestItem" asp-route-id="@item.Id"> Request item  </a> </td>
+                }
+                
+                @* if the user is an admin it lets him edit and delete items*@
+                @if (User.IsInRole("Manager"))
+                {
+                    <td> <a asp-action="AddStock" asp-route-id="@item.Id"> Add stock  </a> </td>
+                    <td>
+                        @* asp-action="Edit" do specific action: action redirect to the "Edit" action in our controller *@
+                        @* asp-route-itemid="@item.Id" action redirect to the "Edit" action in our controller with the specific id *@
+                        <a asp-action="Edit" asp-route-id="@item.Id"> Edit </a>
+                    </td>
+                    <td> <a asp-action="Delete" asp-route-id="@item.Id"> Delete </a> </td>
+                }
+            </tr>
+        }
+
+    </tbody>
+</table>

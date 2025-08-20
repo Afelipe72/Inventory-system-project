@@ -1,0 +1,37 @@
+﻿@model List<ItemRequest>
+
+@if (User.IsInRole("Manager"))
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name </th>
+                <th>Quantity </th>
+                <th>Status </th>
+                <th>Fulfill request </th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Items?.Name </td>
+                <td>@item.Quantity </td>
+                <td>@item.Status</td>
+                <td>
+                    <form method="post" asp-action="DeleteRequestedItem">
+                         <input type="hidden" name="Id" value="@item.Id" />
+                        <input type="submit" class="btn btn-danger" value="Delete" />
+                    </form>
+                </td>
+            </tr>
+        }
+              
+        </tbody>
+    </table>
+}
+else
+{
+    <h1> Unauthorized access. </h1>
+    <p> Please request access to your manager. </p>
+}

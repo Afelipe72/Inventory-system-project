@@ -1,0 +1,73 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Generate CSV file";
+}
+@if (User.IsInRole("Manager"))
+{
+    @* filters *@
+    <form asp-action="Report" method="get">
+        <div class="row">
+        
+            <label> Filters</label>
+        
+            @* dropdown filter *@
+            <div class="col">
+                <select asp-items="ViewBag.Suppliers" class="form-control col-md-6" name="filter"></select>
+            </div>
+
+            @* input filter *@
+            <input type="text" name="search" />
+
+            @* submit button *@
+            <div class="col text-end">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <form asp-action="Report" method="get">
+    
+        <input type="hidden" name="download" value="true" />
+        @*value="@Context.Request.Query["filter"]"
+        This grabs the filter value from the current URL query string and sets it here.*@   
+        <input type="hidden" name="filter" value="@Context.Request.Query["filter"]" />
+
+        <input type="hidden" name="search" value="@Context.Request.Query["search"]" />
+
+        <button type="submit" class="btn btn-link">Download report</button>
+    </form>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name </th>
+                    <th>Description </th>
+                    <th>Price </th>
+                    <th>Category </th>
+                    <th>Supplier </th>
+                    <th>Quantity In Stock </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {        
+                    <tr>
+                        <td> @item.Name </td>
+                        <td> @item.Description </td>
+                        <td> @item.Price </td>
+                        <td> @item.Categories.Name </td>
+                        <td> @item.Supplier.Name </td>
+                        <td> @item.QuantityInStock </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+else
+{
+    <h1> Unauthorized access. </h1>
+    <p> Only managers can generate reports! </p>
+}
